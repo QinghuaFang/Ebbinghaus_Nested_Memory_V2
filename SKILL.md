@@ -1,257 +1,130 @@
-# :classical_building: Tiered Engineering Knowledge Archive
+# :brain: Ebbinghaus Nested Compression Memory
 
-> Stop your AI from mixing up math formulas with random examples.
+> Stop your LLM from burning tokens and forgetting everything.
 
 ## :book: What is this?
 
-Have you ever had an AI hallucinate a formula because it got confused by a specific number from earlier in the chat? 
-Conversational AI treats all text equally, but in engineering, math, and finance, **not all knowledge is created equal**. 
-
-This Skill creates a strict **4-Tier Knowledge System** for your AI:
-- **Tier 1: Principles ** - The absolute core (e.g., `E=mc²`). Cannot be changed or forgotten.
-- **Tier 2: Paradigms ** - How to apply the rules.
-- **Tier 3: Derivations ** - The logical steps.
-- **Tier 4: Instances ** - The temporary numbers of your specific question. These are thrown away immediately after use.
-
+Have you ever chatted with an AI for 50 turns, only for it to forget the core rule you set at the very beginning? Or wasted half of your context window on useless "Hello" and "Thanks"?
+This Skill solves that. It gives your conversational AI a **human-like hippocampus**.
 
 ## :sparkles: Core Features
 
-- **Pre-Commit Grilling **: Before saving a core formula, the AI will *test you* with edge cases to ensure you actually understand it.
-- **Role-Based Privilege **: Standard users can't just force-save a wrong formula. It requires an Admin token.
-- **Graceful Degradation**: If the context window is running out of tokens, it will sacrifice the derivation steps to save the core formulas.
+- **Nested Compression**: Old memories are projected into lower dimensions, like zipping files.
+- **Ebbinghaus Decay**: Useless chit-chat fades away, while `reserve` tagged core rules stay forever.
+- **Token Guard**: Hard limits on how many tokens are unpacked per turn. No more bankruptcy!
 
 ## :rocket: How to use?
 
-1. Feed this document to your Agent (Claude, WorkBuddy, etc.) as a System Prompt or Skill.
-2. Tell the AI: *"I am about to teach you some engineering knowledge. Please use the Tiered Knowledge Archive protocol to question me and save it."*
-3. Try typing `/force-commit` to see the security gate intercept you!
+The `Ebbinghaus_Nested_Memory_V2.md` in this repo is the skill itself (i.e. `SKILL.md`). There are three ways to feed it to your Agent:
+
+**Option 1: Install as a Skill in WorkBuddy (recommended, set once and it lasts)**
+
+1. Create a skill directory (pick one):
+   - User-level (applies to all projects): `~/.workbuddy/skills/ebbinghaus-memory/`
+   - Project-level (current workspace only): `<your workspace>/.workbuddy/skills/ebbinghaus-memory/`
+2. Save this file as-is into that directory with the exact filename `SKILL.md` (uppercase).
+3. After refreshing/restarting the conversation, whenever a need involves "long-conversation memory, token overflow, forgotten rules, memory compression", the Agent will auto-match and load this skill. You can also explicitly trigger it by saying "use the Ebbinghaus memory skill".
+
+**Option 2: Paste directly into context (works on any Agent / any platform)**
+
+- Paste the full content of `SKILL.md` into the System Prompt, or attach it as a file at the start of each turn (i.e. paste the whole block below).
+- It is pure Markdown instructions with zero code dependencies — any instruction-following LLM can read and execute it directly.
+
+**Option 3: Tune the knobs (key parameters, edit directly in the file)**
+
+- `max_unpack_token`: total token budget unpacked into context per turn; adjustable anytime.
+- `frozen_token_quota`: max proportion of `max_unpack_token` for frozen archives; default 20%.
+- `max_nesting_depth`: max recursion depth of nested compression (also the hard cap on "forgetting rounds").
+- `similarity_cutoff`: semantic similarity threshold that triggers decompression.
+- `weight_threshold`: weight above which a conflict triggers human adjudication.
+
+**How to protect core memories?**
+Tag any long-term rule / persona / setting you never want to forget with `reserve`. They are sent to the `Frozen residual archive` — never decaying, never auto-pruned, only bounded by the frozen quota.
 
 ---
 
-# Skill: Tiered Engineering Knowledge Archive
-> A knowledge archive skill built for engineering, mathematics, finance and technical material.
-> Memories are organised by epistemic rank instead of recency. Supports pre-commit grilling, role-based retention timers, tag-bound preserve windows, staged manual commit flow, graceful token degradation, full grilling escape controls, privilege escalation gates and immutable audit logging.
-> All global parameters can be overridden for individual entries, tags or knowledge tiers.
+# Skill: Ebbinghaus Nested Compression Memory
+> Simulates human-like memory with recursive "archive-within-archive" layering, gradual forgetting, selective recall, configurable conflict resolution, subspace projection metaphor, quota guards, two-stage retrieval, and explicit human adjudication signalling.
+> This skill manages long-term conversation memory without naively discarding raw context. All global rules can be overridden for individual memory entries or memory clusters.
 
 ## Overview
-This archive separates knowledge into four fixed tiers sorted by intrinsic priority. Priority does **not** automatically shift merely because content is new.
-- **Tier 1: Fundamental Principle (Highest)**
-  Axioms, governing equations, hard constraints, validity bounds, dimensional rules, invariant assumptions. These form the basis for all inference.
-- **Tier 2: Core Paradigm Example**
-  Canonical standard workflows, template use cases, standard solution patterns, known failure modes and common pitfalls. They define how principles are applied.
-- **Tier 3: Derivation Chain**
-  Stepwise transformation, approximation points, equivalence logic, deduction paths. Enables flexible generalisation and innovation beyond templates.
-- **Tier 4: Specific Instance (Lowest)**
-  Isolated numerical problems, one-off calculations, single-case numeric substitutions, individual exam questions. These decay fastest and are aggressively pruned.
-
-Core design rule: A higher-rank tier overrides conflicting lower-rank content by default. Recency only acts as a tie-breaker within the same tier.
-
-> Isolation Rule for TTL & Weight: Retention TTL only triggers cleanup reminders. It never modifies tier, baseline weight, or epistemic rank of knowledge. If the user chooses to retain an expired entry, its timer resets, but its core tier status remains invariant. “Ironclad principles; flowing problem instances.”
+This memory system organises conversation history into recursively nested memory layers, analogous to nested archives. Each layer corresponds to a projection onto a lower-dimensional semantic subspace.
+- Inner layers: High-fidelity, recent, fine-grained memory; low compression cost, easy to retrieve.
+- Outer layers: Aggregated, coarsened long-term summaries; higher decompression cost, only unpacked when relevant cues appear.
+- When a memory fragment is retrieved, its decay timer resets, mimicking the Ebbinghaus forgetting curve.
+- `Frozen residual archive`: An isolated read-only subspace for manually pinned backup memories, exempt from automatic decay, compression, merging and pruning — but subject to token quota limits at load time.
 
 ## Core Mechanism
-### 1. Knowledge Tier Properties
-| Tier | Baseline Weight | Decay Behaviour | Merge Rule | Default Conflict Policy | Grilling Required |
-|---|---|---|---|---|---|
-| Fundamental Principle | Extremely high | Near-zero decay | Only merge when semantically identical; rarely compressed | Tier-vs-lower: silently override lower. Principle vs principle: trigger human adjudication | Mandatory |
-| Core Paradigm Example | High | Slow decay | Mergeable only if sharing identical application paradigm | Tier-vs-lower: silently override lower. Paradigm vs paradigm: medium alert | Mandatory |
-| Derivation Chain | Medium | Moderate decay | Permitted to summarise and compress | Tier-vs-lower: silently override lower. Chain vs chain: silent resolution | Mandatory |
-| Specific Instance | Low | Fast decay | Heavy aggregation, numeric values eligible for stripping | Tier-vs-lower: silently override lower. Instance vs instance: fully silent | Skipped |
+### Memory Layer Rules
+1. **Short‑term active layer**
+   Stores near-original conversation fragments, timestamps, weight scores, tags, and trace pointers. Minimal summarization. This is the default reading space for every new turn.
+2. **Intermediate archive layers**
+   Periodically pull low-access fragments from the inner layer, compress them into structured summaries, and push them outward. Each compression step performs semantic projection and drops weak components.
+3. **Deep long‑term archive layers**
+   Multiple intermediate archives are merged into heavier, highly abstracted outer snapshots. These snapshots are not routinely loaded unless strong semantic matching occurs.
+4. **Frozen residual archive**
+   Separate static storage for entries tagged `reserve`. These entries never decay or get pruned automatically, but they are bounded by a dedicated frozen token quota to prevent unbounded context bloat.
 
-Entry labels:
-- `vetted`: Completed full grilling, no penalty.
-- `unchecked`: User issued `skip grilling` before grilling began.
-- `unvetted_confirmed_by_user`: User invoked `/force-commit`. Additional tags may be attached for approval / bypass status.
-- `approved_by_supervisor`: Force commit validated with a valid supervisor override token.
-- `forced_without_supervisor_approval`: Force commit bypassed approval gate explicitly.
-- `admin_authorized`: Force commit invoked by an admin role.
+### Forgetting & Refresh
+- Every memory entry carries a decay counter aligned with an Ebbinghaus-style attenuation schedule.
+- If an entry or archive branch is retrieved (decompressed), its counter resets and the relevant fragment is promoted back toward the inner active layer.
+- If an entry remains untouched across successive compression rounds, it will be pushed outward, coarsened repeatedly, and eventually pruned unless marked as `reserve`.
+- `max_nesting_depth` enforces a hard upper bound on recursion depth to prevent unbounded archive explosion; this value acts as the user-defined forgetting-round limit.
 
-Any conflict involving non-vetted high-tier entries is escalated to human adjudication with explicit warning of its penalty label and audit trace.
+### Retrieval & Decompression (Two‑Stage Filter Pipeline)
+On receiving new user input:
+1. **Coarse filter (lightweight preselection)**
+   Run keyword / tag matching or lightweight TF-IDF scoring over the full archive index. Select the top 5 candidate archives with the highest preliminary relevance. If the total archive count ≤ 5, skip coarse filtering.
+2. **Fine semantic similarity scoring**
+   Compute full semantic similarity only over the shortlist produced by the coarse filter.
+3. Traverse candidates starting from inner layers outward. Unpack only branches whose similarity exceeds `similarity_cutoff`.
+4. Enforce two hard token budgets:
+   - Global `max_unpack_token`: total token budget for all unpacked memories injected into context in a single turn. This parameter is manually adjustable by the user at any time.
+   - `frozen_token_quota`: the maximum proportion of `max_unpack_token` permitted for frozen archive entries; default = 20%.
+5. If loading all qualified frozen entries would exceed the frozen quota, sort frozen candidates by descending weight and load until the quota is exhausted. Entries skipped due to quota are marked `skipped` in the index. If the user invokes a skipped frozen entry explicitly by keyword, load it regardless of the current frozen quota.
+6. If the combined candidate pool exceeds `max_unpack_token`, prioritise higher-weight, higher-similarity fragments.
+7. Inject the final selected memory fragments into the model context for this turn.
 
-### 2. Pre-Commit Grilling Pipeline & Escape Controls
-Grilling activates automatically for Tier 1, Tier 2 and Tier 3 during draft submission, before committing to the archive.
-The AI must ask targeted validation questions corresponding to the tier:
-- **Principle grilling**: Validity range, implicit approximations, dimensional constraints, edge cases, scenarios where the principle fails, incompatible preconditions.
-- **Paradigm grilling**: Scope of applicability, scenarios where this template cannot be used, hidden prerequisites, classic traps.
-- **Derivation grilling**: Every point where approximation, simplification or substitution is introduced; the cost and limitation of each simplification.
+## Default Policy Preset
+> Globally active; overrideable per entry, per cluster, or per tag.
 
-Grill depth is adjustable via `grill_depth`. Shallow mode asks 2–3 validation questions; deep mode exhaustively explores boundary assumptions.
-
-Escape and pressure-relief rules (hard enforced):
-1. **Force Commit Command**:
-   - If draft is Tier 1 / Tier 2 and `user_role` is `standard` / `unspecified`: `/force-commit` triggers the supervisor approval gate.
-   - If draft is Tier 3 / Tier 4: `/force-commit` immediately terminates interrogation, jump directly to review stage, mark draft `unvetted_confirmed_by_user`, apply standard force commit penalty.
-2. **Force Commit Bypass Flag**: `/force-commit --bypass`
-   Only valid for Tier1 / Tier2 approval gate; invokes bypass flow with maximum penalty and mandatory audit log.
-3. **Continuous Pressure Release Counter**: Count consecutive grill rounds where the user cannot provide a valid, responsive answer. After three consecutive unresolvable interrogation rounds, automatically prompt:
-   > “Detected you may be unable to answer questions at this depth. Would you like to mark this entry unvetted and proceed directly to review?”
-4. Existing commands remain:
-   - `next`: Confirm the response and advance the pipeline.
-   - `skip grilling`: Bypass interrogation at the very beginning of grilling phase; the entry will be stamped `unchecked`.
-   - `back`: Return to the draft editing stage.
-   - `abort`: Discard this draft completely.
-
-Distinction:
-- `skip grilling`: Opt out before grilling starts.
-- `/force-commit`: Escape out from the middle of an ongoing grill session.
-
-### 3. Privilege Escalation & Supervisor Override
-This rule intercepts `/force-commit` for high-impact tiers: Tier 1 (Fundamental Principle) and Tier 2 (Core Paradigm Example). Tier 3 and Tier 4 entries are exempt from this approval gate and follow the original force-commit workflow.
-
-Role definition:
-- `admin`: Full privilege; may invoke `/force-commit` on Tier 1 / Tier 2 without override token, and may toggle `allow_principle_rebase`.
-- `standard`: Standard user; subject to supervisor approval gate for Tier1 / Tier2 force commit.
-- `unspecified`: Treated as `standard` until explicitly reassigned.
-
-Global configuration:
-- `supervisor_override_token`: A preconfigured static passphrase / hash for supervisor approval; editable only by `admin`.
-- `immutable_audit_log`: Append-only log; entries can never be deleted or modified after writing.
-
-#### 3.1 Interception
-When a `standard` / `unspecified` user runs `/force-commit` on a draft of Tier 1 or Tier 2:
-Halt pipeline immediately, output verbatim:
-> "🛑 **Privilege Intercept**: You are attempting to force-commit an unvetted Tier 1 fundamental principle / Tier 2 paradigm. This may degrade the baseline reliability of the knowledge archive. Provide your Supervisor Override Code, or request manual review from an Admin supervisor."
-> If multi-notification is enabled, dispatch an approval notice to registered admin endpoints.
-
-#### 3.2 Valid Override Token
-If the user supplies a matching `supervisor_override_token`:
-- Proceed to review stage;
-- Attach tag: `approved_by_supervisor: true`;
-- Penalty multiplier: `force_commit_additional_penalty = 0.95`;
-- Append to audit log:
-  `AUDIT_LOG: User [user_id] force-committed Tier {tier} entry at [timestamp], approved via valid supervisor override token.`
-
-#### 3.3 Bypass: `--bypass`
-If user provides the `--bypass` flag without a valid supervisor token:
-- Allow commit, but enforce maximum penalty;
-- Final combined weight multiplier: `unchecked_weight_penalty * bypass_max_penalty = 0.60`;
-- Attach tag: `forced_without_supervisor_approval: true`;
-- Mandatory immutable audit log entry:
-  `AUDIT_LOG: User [user_id] forced commit Tier {tier} principle at [timestamp] WITHOUT valid supervisor override, using bypass flag.`
-
-#### 3.4 Admin exemption
-If the active `user_role = admin`:
-- No token required for `/force-commit` on Tier1 / Tier2;
-- Still write a normal audit record for traceability, penalty multiplier = 0.90;
-- Admin is the only role permitted to execute:
-  - `/set-supervisor-token [new_token]`
-  - `/set-role [target_user_id] admin | standard`
-  - Toggle `allow_principle_rebase`
-
-#### 3.5 Penalty lookup table
-| Scenario | Tags | Combined weight multiplier |
-|---|---|---|
-| Normal full grilling passed | `vetted` | 1.00 |
-| `skip grilling` before grill begins | `unchecked` | 0.60 |
-| `/force-commit` Tier 3 | `unvetted_confirmed_by_user` | 0.80 |
-| `/force-commit` Tier1/2 + valid supervisor token | `unvetted_confirmed_by_user, approved_by_supervisor` | 0.95 |
-| `/force-commit --bypass` Tier1/2 | `unvetted_confirmed_by_user, forced_without_supervisor_approval` | 0.60 |
-| Admin force commit Tier1/2 | `unvetted_confirmed_by_user, admin_authorized` | 0.90 |
-
-### 4. Staged Manual Commit Flow
-The pipeline never advances automatically. Every new knowledge entry flows through discrete stages, and progression requires explicit user confirmation.
-
-Stage sequence:
-1. `draft`: Raw submitted knowledge, tier tagging and metadata setup.
-2. `grilling`: Interrogation phase (skipped automatically for Tier 4 or if `skip grilling` is issued).
-3. `review`: Present a full preview: assigned tier, weight, retention timer, preserve window, tags, frozen status, vetted / unchecked / approval flags and active weight penalties.
-4. `commit`: Permanently write the record into the archive, plus audit event if applicable.
-
-Mandatory rule:
-> You SHALL NOT move to the next pipeline stage unless the user explicitly sends the command `next`.
-
-Available stage commands:
-- `next`: Advance to subsequent stage.
-- `back`: Roll back one stage for edits.
-- `abort`: Drop the draft without saving.
-- `skip grilling`: Bypass interrogation for the current draft.
-- `/force-commit`: Escape mid-grilling and move to review, subject to privilege gate.
-- `/force-commit --bypass`: Escape with explicit bypass.
-
-### 5. Role-Based Retention & Expiry Reminder
-On first activation, the skill collects a role profile from the user:
-`role`, `department`, `default_retention_ttl`. The user can update this profile at any time.
-
-Each entry inherits `retention_ttl` from the role profile unless overridden individually or by tag rule.
-Two independent timing modes are available:
-- `realtime`: Wall-clock calendar time. Best for compliance, finance and official document retention.
-- `turn_based`: Count conversation rounds only, stable across sessions without cross-device clock sync issues.
-
-When an entry reaches its retention expiry:
-- No automatic deletion, downgrade, or weight change occurs.
-- Emit a standard reminder prompt and pause the retention timer workflow for that entry until the user chooses an action:
-  - `delete permanently`
-  - `extend retention`
-  - `move to frozen archive`
-  - `keep as-is without timer`
-- If user selects retention, reset only the TTL timer; tier and baseline weight stay fixed.
-
-Special protection: Tier 1 principles produce a prominent high-priority expiry reminder and cannot be silently purged. Tier 4 instances may be auto-compressed and stripped if ignored for prolonged periods after expiry.
-
-### 6. Preserve Window (Anti-Pruning Lock)
-`preserve_window` defines a safe retention window. While inside this window, the entry cannot be removed, truncated or merged away by routine forgetting or compression.
-- Can be set for individual entries, or bulk-bound to tags (e.g. all entries tagged `finance` with `preserve_window = 365 days` for year-over-year comparison).
-- `preserve_window` outranks normal decay and auto-prune logic, but remains bounded under the global `max_unpack_token` and frozen quota.
-- Alert rule: If the total token footprint of entries under active preserve window exceeds 60% of the global unpack budget, emit a quota warning to the user.
-
-### 7. Retrieval & Decompression (Two-Stage Filter + Graceful Degradation)
-When the user submits a query:
-1. **Coarse filter**: Keyword, tag and lightweight TF-IDF matching over the whole archive index. Select the top `coarse_top_k` preliminary candidates. Skip coarse filtering if total archive size ≤ coarse_top_k.
-2. **Fine semantic scoring**: Compute full semantic similarity only on the shortlist from coarse filter.
-3. Rank candidates first by knowledge tier baseline weight, then by semantic similarity, and finally by recency as tie-breaker.
-4. **Graceful Degradation Loading Order (hard rule)**:
-   - First: Load Tier 1 entries completely, no summarisation, equations and boundary conditions intact. Tier 1 content must never be truncated or simplified.
-   - Second: Load Tier 2 entries; if budget is tight, Tier 2 may be condensed but retain all core rules and prerequisites.
-   - Third: Load Tier 3 derivation chains. If remaining budget is insufficient after Tier 1 + Tier 2 are loaded, load only final conclusions, core formulas and critical constraints, skipping intermediate derivation steps, and append this notice verbatim:
-     > Notice: Due to token budget constraints, full derivation steps have been omitted; only condensed results are loaded.
-   - Fourth: Tier 4 instances are the first to be trimmed or dropped when space runs low.
-5. Enforce hard token budgets:
-   - `max_unpack_token`: Global per-turn token budget for all unpacked knowledge; adjustable manually by user anytime.
-   - `frozen_quota_ratio`: Maximum fraction of `max_unpack_token` allocated to frozen residual archive entries; default = 0.20.
-6. If frozen candidates exceed the frozen quota, load entries sorted descending by weight. Skipped frozen entries remain intact; explicit keyword invocation overrides the frozen quota for that single entry.
-7. Inject the final selected knowledge into context.
-> Important distinction: This degradation only applies to material loaded into the current context. Original stored records inside the archive remain fully intact and unmodified.
-
-### 8. Conflict Resolution Rules
-1. Higher tier beats lower tier in all ordinary conflicts. If a Tier 4 calculation contradicts a Tier 1 principle, the instance is treated as erroneous and silently corrected.
-2. Same-tier conflict routing:
-   - Principle vs principle: High-weight conflict, mandatory human adjudication.
-   - Paradigm vs paradigm: Medium alert, request human review.
-   - Derivation vs derivation: Silent reconciliation.
-   - Instance vs instance: Fully silent merge or discard.
-3. Mandatory adjudication alert template, must be printed verbatim and pause the knowledge pipeline:
+### Conflict Resolution
+- **Primary rule**: Recency priority. When newer inner memory contradicts an older outer projection, the newer record is treated as ground truth.
+- **High‑weight branch**: If either conflicting entry's weight exceeds `weight_threshold`, automatic resolution halts, the memory pipeline pauses, and the conflict enters formal human adjudication.
+- **Mandatory adjudication alert**: When entering human adjudication, you MUST output this fixed alert and pause all memory operations (compression, promotion, propagation) until the user provides a resolution:
 
   ```
-  [KNOWLEDGE ADJUDICATION REQUIRED]
-  The knowledge pipeline is now PAUSED.
-  A high-tier conflict needs your decision before any knowledge operation can continue.
+  [MEMORY ADJUDICATION REQUIRED]
+  The memory pipeline is now PAUSED.
+  A conflict needs your decision before any memory operation can continue.
 
-  Conflict type : <principle-vs-principle | paradigm-vs-paradigm>
-  Entry A (tier) : <id> [Tier X] — <one-line summary>
-  Entry B (tier) : <id> [Tier Y] — <one-line summary>
+  Conflict type : <recency | high-weight>
+  Newer record  : <id> — <one-line summary of the inner / newer memory>
+  Older record  : <id> — <one-line summary of the outer / older projection>
   Why paused    : <short reason automatic resolution was halted>
 
   Please resolve by replying with one of:
-    A) Keep Entry A as ground truth (discard B).
-    B) Keep Entry B as ground truth (discard A).
+    A) Keep the newer record as ground truth (discard the older).
+    B) Keep the older record (override recency).
     C) Merge the two — specify how.
     D) Custom resolution — specify exactly.
 
-  No commit, grilling, or propagation will run until you reply.
+  No compression, promotion, or propagation will run until you reply.
   ```
 
   You MAY also emit the same event as structured JSON for downstream tooling:
 
   ```json
   {
-    "event": "knowledge_adjudication_required",
+    "event": "memory_adjudication_required",
     "status": "paused",
     "conflict": {
-      "type": "<principle-vs-principle|paradigm-vs-paradigm>",
-      "entry_a": { "id": "<entry_id>", "tier": "<Tier X>", "summary": "<...>" },
-      "entry_b": { "id": "<entry_id>", "tier": "<Tier Y>", "summary": "<...>" },
+      "type": "<recency|high-weight>",
+      "newer": { "id": "<entry_id>", "summary": "<...>" },
+      "older": { "id": "<entry_id>", "summary": "<...>" },
       "reason": "<...>"
     },
-    "blocked_actions": ["commit", "grilling", "propagation"],
+    "blocked_actions": ["compression", "promotion", "propagation"],
     "awaiting": "user_resolution"
   }
   ```
